@@ -1,7 +1,10 @@
 {
   "dependencies": {
+    "@auth/core": "^0.38.0",
     "colors": "^1.4.0",
-    "express": "^5.1.0"
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-openid-connect": "^2.18.0"
   },
   "name": "prezy-backend",
   "version": "1.0.0",
