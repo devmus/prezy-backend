@@ -1,25 +1,27 @@
 import express from "express";
 import colors from "colors";
-import { APP_PORT, authConfig } from "./config/config.mjs";
-import pkg from "express-openid-connect";
+import { APP_PORT } from "./config/config.mjs";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth.mjs";
+import mongoose from "mongoose";
+import morgan from "morgan";
+import cors from "cors";
 dotenv.config();
-const { auth, requiresAuth } = pkg;
 
 const app = new express();
+app.use(express.json());
 
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(authConfig));
+app.use(cors({ origin: "http://localhost:8080" }));
 
-// req.isAuthenticated is provided from the auth router
-app.get("/", (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
-});
+app.use(morgan("dev"));
 
-app.get("/profile", requiresAuth(), (req, res) => {
-  res.send(JSON.stringify(req.oidc.user));
-});
+app.use("/auth", authRoutes);
 
-app.listen(APP_PORT, () => {
-  console.log(`Server is running on port: ${APP_PORT}`.green.underline);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    app.listen(APP_PORT, () =>
+      console.log(`Server is running on port: ${APP_PORT}`.green.underline)
+    );
+  })
+  .catch((err) => console.error("MongoDB connection error:", err));
